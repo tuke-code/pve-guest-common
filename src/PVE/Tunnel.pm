@@ -5,7 +5,7 @@ use warnings;
 
 use IO::File;
 use IO::Pipe;
-use IPC::Open2;
+use IPC::Open3 qw(open3);
 use JSON qw(encode_json decode_json);
 use POSIX qw( WNOHANG );
 use Storable qw(dclone);
@@ -66,12 +66,19 @@ sub read_tunnel {
     $timeout = 60 if !defined($timeout);
 
     my $reader = $tunnel->{reader};
+    my $reader_stderr = $tunnel->{reader_stderr};
 
     my $output;
     eval {
         PVE::Tools::run_with_timeout($timeout, sub { $output = <$reader>; });
     };
-    die "reading from tunnel failed: $@\n" if $@;
+    my $err = $@;
+
+    while (my $line = <$reader_stderr>) { # $reader_stderr is set up as non-blocking
+        $tunnel->{log}->('warn', $line);
+    }
+
+    die "reading from tunnel failed: $err\n" if $err;
 
     chomp $output if defined($output);
 
@@ -145,13 +152,16 @@ sub fork_ssh_tunnel {
     my $full_cmd = [@$rem_ssh, '-o ExitOnForwardFailure=yes', @localtunnelinfo, @$cmd];
 
     my $reader = IO::File->new();
+    my $reader_stderr = IO::File->new();
     my $writer = IO::File->new();
 
     my $orig_pid = $$;
 
     my $cpid;
 
-    eval { $cpid = open2($reader, $writer, @$full_cmd); };
+    eval { $cpid = open3($writer, $reader, $reader_stderr, @$full_cmd); };
+    # Only read_tunnel() uses $reader_stderr and it never wants to wait.
+    $reader_stderr->blocking(0);
 
     my $err = $@;
 
@@ -167,6 +177,7 @@ sub fork_ssh_tunnel {
     my $tunnel = {
         writer => $writer,
         reader => $reader,
+        reader_stderr => $reader_stderr,
         pid => $cpid,
         rem_ssh => $rem_ssh,
         log => $log,
