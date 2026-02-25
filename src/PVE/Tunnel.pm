@@ -3,6 +3,7 @@ package PVE::Tunnel;
 use strict;
 use warnings;
 
+use IO::File;
 use IO::Pipe;
 use IPC::Open2;
 use JSON qw(encode_json decode_json);
