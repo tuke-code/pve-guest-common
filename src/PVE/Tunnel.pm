@@ -372,3 +372,5 @@ sub finish_tunnel {
 
     die $err if $err;
 }
+
+1;
