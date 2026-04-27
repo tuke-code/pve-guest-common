@@ -3,10 +3,11 @@ package PVE::AbstractConfig;
 use strict;
 use warnings;
 
-use PVE::Tools qw(lock_file lock_file_full);
-use PVE::INotify;
 use PVE::Cluster;
+use PVE::INotify;
+use PVE::JSONSchema;
 use PVE::Storage;
+use PVE::Tools qw(lock_file lock_file_full);
 
 use PVE::GuestHelpers qw(typesafe_ne);
 use PVE::ReplicationConfig;
