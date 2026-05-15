@@ -1,3 +1,13 @@
+libpve-guest-common-perl (6.0.3) trixie; urgency=medium
+
+  * snapshot: log freeze and thaw of guest filesystem in task log to give
+    operators more visibility on what is happening during snapshot creation.
+
+  * backup: drop the long-deprecated 'maxfiles' parameter, which has been
+    superseded by 'prune-backups' since Proxmox VE 7.
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 15 May 2026 10:47:31 +0200
+
 libpve-guest-common-perl (6.0.2) trixie; urgency=medium
 
   * replication: avoid printing empty replication network in task log.
