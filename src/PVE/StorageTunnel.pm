@@ -101,7 +101,7 @@ sub storage_migrate {
 
     # wait for the remote process to finish
     my $new_volid;
-    while ($res = PVE::Tunnel::write_tunnel($tunnel, 10, 'query-disk-import')) {
+    while ($res = PVE::Tunnel::write_tunnel($tunnel, 60, 'query-disk-import')) {
         if ($res->{status} eq 'pending') {
             if (my $msg = $res->{msg}) {
                 $log->('info', "disk-import: $msg\n");
