@@ -297,7 +297,8 @@ sub handle_query_disk_import {
         # check imported image for bad references
         if ($scfg->{path}) {
             my $path = PVE::Storage::path($cfg, $volid);
-            PVE::Storage::file_size_info($path, undef, 1);
+            my $format = (PVE::Storage::parse_volname($cfg, $volid))[6];
+            PVE::Storage::file_size_info($path, undef, $format, 1);
         }
 
         return {
