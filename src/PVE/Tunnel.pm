@@ -248,6 +248,9 @@ sub fork_websocket_tunnel {
     my ($conn, $url, $req_params, $tunnel_params, $log) = @_;
 
     if (my $apitoken = $conn->{apitoken}) {
+        if ($apitoken !~ /^\w+(?:=| )/) {
+            $apitoken = "PVEAPIToken=${apitoken}";
+        }
         $tunnel_params->{headers} = [["Authorization", "$apitoken"]];
     } else {
         die "can't connect to remote host without credentials\n";
