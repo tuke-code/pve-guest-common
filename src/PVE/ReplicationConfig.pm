@@ -96,6 +96,19 @@ my $defaultData = {
             format => 'pve-node',
             optional => 1,
         },
+        'skip-freeze-fs' => {
+            description =>
+                "Whether to skip freezing and thawing the guest's filesystems for consistency"
+                . " during replication.",
+            verbose_description =>
+                "Whether to skip freezing and thawing the guest's filesystems for consistency"
+                . " during replication. Disabling this setting does not enforce that a freeze"
+                . " happens for VMs. For VMs, that also depends on the VM's 'agent' configuration"
+                . " setting and the availability of the QEMU guest agent in the VM.",
+            type => 'boolean',
+            optional => 1,
+            default => 0,
+        },
     },
 };
 
@@ -335,6 +348,7 @@ sub options {
         schedule => { optional => 1 },
         remove_job => { optional => 1 },
         source => { optional => 1 },
+        'skip-freeze-fs' => { optional => 1 },
     };
 }
 

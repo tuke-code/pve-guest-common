@@ -299,7 +299,24 @@ sub replicate {
     my $vmid = $jobcfg->{guest};
 
     my $conf = $guest_class->load_config($vmid);
-    my ($running, $freezefs) = $guest_class->__snapshot_check_freeze_needed($vmid, $conf, 0);
+
+    my $running = $guest_class->__snapshot_check_running($vmid, $conf);
+    my $freezefs = 1;
+
+    if ($jobcfg->{'skip-freeze-fs'}) {
+        if ($running) {
+            $logfunc->("replication job configured with 'skip-freeze-fs' enabled, not freezing"
+                . " guest filesystems");
+        }
+        $freezefs = 0;
+    } else {
+        # We check __snapshot_check_freeze_needed after checking skip-freeze-fs to avoid logging
+        # messages produced by the former, since the job setting takes precedence.
+        my ($_running, $freeze_needed) =
+            $guest_class->__snapshot_check_freeze_needed($vmid, $conf, 0);
+        $freezefs = $freeze_needed;
+    }
+
     my $volumes = $guest_class->get_replicatable_volumes(
         $storecfg,
         $vmid,
